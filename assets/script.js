@@ -1,12 +1,14 @@
-/* VARIABLES */
 const todoCards = $('#todo-cards');
 const inProgressCards = $('#in-progress-cards');
 const doneCards = $('#done-cards');
+
+/* additional constants*/
+
 const taskTitleEl = $('#task-title');
 const dueDateEl = $('#task-due');
 const taskDescrEl = $('#task-descr');
 
-/* FUNCTIONS */
+
 /* Generate a unique task id */
 function generateTaskId() {
     const num = JSON.parse(localStorage.getItem("numTasks")) || 0;
@@ -32,7 +34,6 @@ function createTaskCard(task) {
     card.append(cardBody)
     todoCards.append(card)
 
-    // Get days
     const today = dayjs();
     const due = dayjs(task.date, 'DD/MM/YYYY');
 
@@ -44,31 +45,36 @@ function createTaskCard(task) {
         deleteBtn.addClass('border-light');
     }
     
+     /* Make cards draggable and move cards forward */
+
     makeDraggable();
     return card;
 }
 
 /* Render task list and make cards draggable */
 function renderTaskList() {
+
     // Clear existing tasks 
+
     todoCards.empty();
     inProgressCards.empty();
     doneCards.empty();
 
-    // Get updated task list
+    // Get updated task list from the local storage
     let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
 
-    // Add each task back to task board
+    // Add each task back to the task board using a tasklist array
+
     for (const index in taskList) {
         const task = taskList[index];
         const card = createTaskCard(task);
 
-        // Add task to relevant task list
+        // Add task to relevant task array
         if (task.status == "to-do") {
             todoCards.append(card);
         } else if (task.status == "in-progress") {
             inProgressCards.append(card);
-        } else if (task.status == "done") {  // Specify all else if incase of incorrect status
+        } else if (task.status == "done") { 
             doneCards.append(card);
         }
     }
@@ -79,7 +85,8 @@ function renderTaskList() {
 
 /* Add a new task */
 function handleAddTask(event){
-    // Close modal after adding task
+
+    
     $('#formModal').modal('hide')
 
     // Get updated task list
@@ -94,7 +101,6 @@ function handleAddTask(event){
         status: "to-do"
     }
 
-    // Create and display card
     createTaskCard(task);
 
     // Store in task list
@@ -109,10 +115,12 @@ function handleAddTask(event){
 
 /* Handle deleting a task */
 function handleDeleteTask(event){
-    // Get updated task list
+
+    // Get updated task list from the local storage
     let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
 
-    // Remove card
+    // Remove card function
+
     const targetId = $(this).attr("task-id");
     for (const index in taskList) {
         const task = taskList[index]
@@ -129,13 +137,17 @@ function handleDeleteTask(event){
 
 /* Update status of card when dropping into a new lane */
 function handleDrop(event, ui) {
-    // Get updated task list
+
+    // Get updated task list from the local storage
+
     let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
 
-    // Get new location of card
+    // Get new location of card from the newlane constant
+
     const newLane = event.target.id;
 
-    // Update status of card
+    // Update status of card when the card is moved into a different lane (array)
+
     const targetId = ui.draggable.attr('task-id');
     for (const index in taskList) {
         const task = taskList[index]
@@ -147,11 +159,13 @@ function handleDrop(event, ui) {
         }
     }
 
-    // Refresh page with new placement
+    // Refresh page with card replacement and refresh the id classifiers as well
+
     renderTaskList();
 }
 
-/* Allow cards to be dropped into lanes */
+/* Allow cards to be dropped into different lanes using drag function*/
+
 function makeDroppable() {
   $('.lane').droppable({
     accept: '.draggable',
@@ -159,21 +173,22 @@ function makeDroppable() {
   });
 }
 
-/* Allow cards to be dragged and move them forward */
 function makeDraggable() {
     $('.draggable').draggable({zIndex: 1});
 }
 
 /* When the page loads, render the task list, add event listeners, make lanes */
 /* droppable, and make the due date field a date picker */
+
 $(document).ready(function () {
     $('#task-due').datepicker();
     $(".sortable").sortable();
-    renderTaskList();  // Also makes cards draggable
+    renderTaskList();  
     makeDroppable();
 });
 
 /* EVENT LISTENERS */
+
 $('#submit-task').on('click', handleAddTask);
 todoCards.on('click', '#delete-btn', handleDeleteTask)
 inProgressCards.on('click', '#delete-btn', handleDeleteTask)
